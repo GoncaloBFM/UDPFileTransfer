@@ -26,6 +26,7 @@ public class Alarm {
 	 */
 	public boolean schedule(long id, int millisecondDelay, Task task) {
 		TaskThread taskThread = new TaskThread(id, task);
+
 		if (this.tasks.get(id) != null) {
 			return false;
 		}

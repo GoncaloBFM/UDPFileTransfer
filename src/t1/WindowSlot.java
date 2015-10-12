@@ -6,12 +6,12 @@ package t1;
 public class WindowSlot {
 	private TftpPacket packet;
 	private int numberOfTries;
-	private boolean acked;
+	private boolean isAcked;
 
 	public WindowSlot(TftpPacket packet) {
 		this.packet = packet;
 		this.numberOfTries = 0;
-		this.acked = false;
+		this.isAcked = false;
 	}
 
 	public void incrementTries() {
@@ -19,11 +19,11 @@ public class WindowSlot {
 	}
 
 	public void setAcked() {
-		this.acked = true;
+		this.isAcked = true;
 	}
 
 	public boolean isAcked() {
-		return this.acked;
+		return this.isAcked;
 	}
 
 	public TftpPacket getPacket() {
