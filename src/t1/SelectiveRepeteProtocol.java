@@ -36,18 +36,24 @@ public class SelectiveRepeteProtocol {
     }
 
     public void send(TftpPacket packet) throws SocketSendException {
+        WindowSlot ws = new WindowSlot(packet);
+        window.addToWindow(ws);
+        ws.incrementTries();
         this.sendPacket(packet);
 
         long seqN = packet.getBlockSeqN();
-        WindowSlot ws = new WindowSlot(packet);
-        window.addToWindow(ws);
-        alarm.schedule(seqN, millisTimeout, () -> {
-            if( ws.getNumberOfTries() >= maxTries)
-                throw new RuntimeException("booom!! nr.2");
+        alarm.schedule(seqN, millisTimeout, () -> resend(ws));
+    }
 
-            sendPacket(window.getPacket(seqN));
-            ws.incrementTries();
-        });
+    private void resend(WindowSlot ws){
+        long seqN = ws.getPacket().getBlockSeqN();
+        if( ws.getNumberOfTries() >= maxTries )
+            throw new RuntimeException("booom!! nr.2");
+
+        sendPacket(window.getPacket(seqN));
+        ws.incrementTries();
+
+        alarm.schedule(seqN, millisTimeout, () -> resend(ws));
     }
 
     private void sendPacket(TftpPacket packet) throws SocketSendException {

@@ -14,11 +14,11 @@ public class Window {
 		this.capacity = capacity;
 	}
 
-	public void addToWindow(WindowSlot elem){
+	public synchronized void addToWindow(WindowSlot elem){
 
 		while(this.isFull())
 			try {
-				Thread.currentThread().wait();
+				this.wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

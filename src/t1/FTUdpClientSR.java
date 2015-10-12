@@ -17,7 +17,7 @@ public class FTUdpClientSR {
 	static final int DEFAULT_BLOCKSIZE = 512; // default block size as in TFTP
 												// RFC
 
-	static int WindowSize;
+	static int WindowSize = 1;
 	static int BlockSize = DEFAULT_BLOCKSIZE;
 	static int Timeout = DEFAULT_TIMEOUT;
 
@@ -34,7 +34,7 @@ public class FTUdpClientSR {
 		} catch (SocketException e) {
 			throw new SocketCreateException("Could not create socket", e);
 		}
-		this.srProtocol = new SelectiveRepeteProtocol(WindowSize, socket, srvAddress, Timeout);
+		this.srProtocol = new SelectiveRepeteProtocol(WindowSize, socket, srvAddress, Timeout, DEFAULT_MAX_RETRIES);
 		this.filename = filename;
 		this.srvAddress = srvAddress;
 	}
