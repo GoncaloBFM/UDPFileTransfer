@@ -8,10 +8,18 @@ public class WindowSlot {
 	private int numberOfTries;
 	private boolean isAcked;
 
+	private long expectedACK;
+
 	public WindowSlot(TftpPacket packet) {
+		this(packet, packet.getBlockSeqN());
+	}
+
+	public WindowSlot(TftpPacket packet, long expectedACK){
 		this.packet = packet;
 		this.numberOfTries = 0;
 		this.isAcked = false;
+
+		this.expectedACK = expectedACK;
 	}
 
 	public void incrementTries() {
@@ -32,5 +40,9 @@ public class WindowSlot {
 
 	public int getNumberOfTries() {
 		return this.numberOfTries;
+	}
+
+	public long getExpectedACK(){
+		return this.expectedACK;
 	}
 }

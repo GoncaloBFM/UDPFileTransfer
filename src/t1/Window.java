@@ -24,11 +24,11 @@ public class Window {
 			}
 
 
-		this.windowSlots.put(elem.getPacket().getBlockSeqN(), elem);
+		this.windowSlots.put(elem.getExpectedACK(), elem);
 	}
 
-	public void setACK(long seqN){
-		WindowSlot ws = this.windowSlots.get(seqN);
+	public synchronized void setACK(long expectedACK){
+		WindowSlot ws = this.windowSlots.get(expectedACK);
 		if(ws == null) return;
 
 		ws.setAcked();
@@ -55,8 +55,9 @@ public class Window {
 		return this.windowSlots.firstEntry().getValue().isAcked();
 	}
 
-	public TftpPacket getPacket(long seqN){
-		return this.windowSlots.get(seqN).getPacket();
+	public TftpPacket getPacket(long expectedACK){
+		WindowSlot ws = this.windowSlots.get(expectedACK);
+		return ws == null ? null : ws.getPacket();
 	}
 
 }
