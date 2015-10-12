@@ -46,6 +46,7 @@ public class SelectiveRepeteProtocol {
                 throw new RuntimeException("booom!! nr.2");
 
             sendPacket(window.getPacket(seqN));
+            ws.incrementTries();
         });
     }
 
