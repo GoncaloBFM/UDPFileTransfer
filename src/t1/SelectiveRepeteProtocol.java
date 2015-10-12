@@ -2,12 +2,8 @@ package t1;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import static t1.TftpPacket.MAX_TFTP_PACKET_SIZE;
 
@@ -20,19 +16,20 @@ public class SelectiveRepeteProtocol {
     private SocketAddress destAddr;
     private int port;
 
+	private Alarm alarm;
     private Window window;
-    private ACKReceiverThread ackReceiverThread = new ACKReceiverThread();
-    private Alarm alarm = new Alarm();
 
     private long millisTimeout;
 
     public SelectiveRepeteProtocol(int initialWindowSize, DatagramSocket udpSocket, long millisTimeout) {
+		this.alarm = new Alarm();
         this.window = new Window(initialWindowSize);
 
         this.port = udpSocket.getPort();
         this.destAddr = udpSocket.getRemoteSocketAddress();
 
-        this.ackReceiverThread.start();
+		ACKReceiverThread ackReceiverThread = new ACKReceiverThread();
+		ackReceiverThread.start();
 
         this.millisTimeout = millisTimeout;
     }
@@ -42,7 +39,11 @@ public class SelectiveRepeteProtocol {
 
         long seqN = packet.getBlockSeqN();
         alarm.schedule(seqN, millisTimeout, () -> {
-            sendPacket(window.getPacket(seqN));
+            try {
+                sendPacket(window.getPacket(seqN));
+            } catch (IOException e) {
+                new SocketSendException("Could not send packet", e);
+            }
         });
     }
 
@@ -54,7 +55,7 @@ public class SelectiveRepeteProtocol {
         @Override
         public void run(){
             try {
-                for (;;) {
+				while (true) {
                     byte[] buffer = new byte[MAX_TFTP_PACKET_SIZE];
                     DatagramPacket msg = new DatagramPacket(buffer, buffer.length);
                     udpSocket.receive(msg);
@@ -65,13 +66,14 @@ public class SelectiveRepeteProtocol {
                     // make the packet available to sender process
                     TftpPacket pkt = new TftpPacket(msg.getData(), msg.getLength());
 
-                    if(pkt.getOpcode() != TftpPacket.OP_ACK)
-                        throw new Exception("Not an ACK packet");
+                    if(pkt.getOpcode() != TftpPacket.OP_ACK) {
+						throw new WrongOPCodeException("Not an ACK packet");
+					}
 
                     this.setACK(pkt);
                 }
-            } catch (Exception e) {
-                System.err.println("Error in receiver thread! " + e.getMessage() );
+            } catch (WrongOPCodeException | IOException e) {
+                System.err.println("Error in receiver thread! ");
                 e.printStackTrace();
             }
         }

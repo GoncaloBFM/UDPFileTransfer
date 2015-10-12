@@ -1,6 +1,5 @@
 package t1;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -86,7 +85,7 @@ public class Alarm {
 	}
 
 	public interface Task {
-		void excute() throws IOException;
+		void excute();
 	}
 
 }
