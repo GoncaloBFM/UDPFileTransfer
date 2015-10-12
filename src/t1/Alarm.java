@@ -1,0 +1,90 @@
+package t1;
+
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
+
+/**
+ * Created by gbfm on 10/12/15.
+ */
+public class Alarm {
+
+	private Timer timer;
+	private HashMap<Integer, TaskThread> tasks;
+
+	public Alarm() {
+		this.timer = new Timer();
+		tasks = new HashMap<Integer, TaskThread>();
+	}
+
+	/**
+	 * Adds a task to the alarm
+	 * @param id Id of the new task
+	 * @param millisecondDelay Time until the tasks executes
+	 * @param task Task to execute when the time goes off
+	 * @return True if the task was set, false if not. The task is not set if the given task id already exists
+	 */
+	public boolean schedule(int id, int millisecondDelay, Task task) {
+		TaskThread taskThread = new TaskThread(id, task);
+		if (this.tasks.get(id) != null) {
+			return false;
+		}
+		this.tasks.put(id, taskThread);
+		this.timer.schedule(taskThread, millisecondDelay);
+
+		return true;
+	}
+
+	/**
+	 * Removes a task from the alarm
+	 * @param id Id of the task to remove
+	 * @return True if the task was removed, false if not. The task is not removed if the given id does not exist
+	 */
+	public boolean unschedule(int id) {
+		TaskThread task = this.tasks.get(id);
+		if (task != null) {
+			task.cancel();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Returns the number of scheduled tasks
+	 * @return The number of scheduled tasks
+	 */
+	public int getNumberOfCurrentTasks() {
+		return this.tasks.size();
+	}
+
+	/**
+	 * Cancels all scheduled tasks
+	 * Needs to be executed before the program terminates
+	 */
+	public void cancelAll() {
+		this.timer.cancel();
+	}
+
+	private class TaskThread extends TimerTask {
+
+		private Task task;
+		private int id;
+
+		public TaskThread(int id, Task task) {
+			super();
+			this.id = id;
+			this.task = task;
+		}
+
+		public void run() {
+			Alarm.this.tasks.remove(id);
+			this.task.excute();
+		}
+	}
+
+	public interface Task {
+		void excute();
+	}
+
+}
