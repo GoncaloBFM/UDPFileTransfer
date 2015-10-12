@@ -21,12 +21,12 @@ public class SelectiveRepeteProtocol {
 
     private long millisTimeout;
 
-    public SelectiveRepeteProtocol(int initialWindowSize, DatagramSocket udpSocket, long millisTimeout) {
+    public SelectiveRepeteProtocol(int initialWindowSize, DatagramSocket udpSocket, SocketAddress address, long millisTimeout) {
 		this.alarm = new Alarm();
         this.window = new Window(initialWindowSize);
 
         this.port = udpSocket.getPort();
-        this.destAddr = udpSocket.getRemoteSocketAddress();
+        this.destAddr = address;
 
 		ACKReceiverThread ackReceiverThread = new ACKReceiverThread();
 		ackReceiverThread.start();

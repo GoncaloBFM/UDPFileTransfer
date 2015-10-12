@@ -34,7 +34,7 @@ public class FTUdpClientSR {
 		} catch (SocketException e) {
 			throw new SocketCreateException("Could not create socket", e);
 		}
-		this.srProtocol = new SelectiveRepeteProtocol(WindowSize, socket, Timeout);
+		this.srProtocol = new SelectiveRepeteProtocol(WindowSize, socket, srvAddress, Timeout);
 		this.filename = filename;
 		this.srvAddress = srvAddress;
 	}
