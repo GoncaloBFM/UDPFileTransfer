@@ -61,6 +61,8 @@ public class FTUdpClient {
 						receiverQueue.put(pkt);
 					}
 				} catch (Exception e) {
+					System.err.println("Error in receiver thread! " + e.getMessage() );
+					e.printStackTrace();
 				}
 			}).start();
 
@@ -92,6 +94,7 @@ public class FTUdpClient {
 
 			} catch (Exception e) {
 				System.err.println("Failed with error \n" + e.getMessage());
+				throw e;
 			}
 			socket.close();
 			System.out.println("Done...");
