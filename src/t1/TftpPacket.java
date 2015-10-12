@@ -60,49 +60,49 @@ public class TftpPacket {
 	/**
 	 * Read request
 	 *
-	 *	2 bytes     string    1 byte     string   1 byte
-	 *	------------------------------------------------
-	 *	| Opcode |  Filename  |   0  |    Mode    |   0  |
-	 *	------------------------------------------------
+	 *	2 bytes     string    1 byte     string   1 byte<br/>
+	 *	------------------------------------------------<br/>
+	 *	| Opcode |  Filename  |   0  |    Mode    |   0  |<br/>
+	 *	------------------------------------------------<br/>
 	 */
 	public static final short OP_RRQ = 1;
 
 	/**
 	 * Write request
 	 *
-	 *	2 bytes     string    1 byte     string   1 byte
-	 *	------------------------------------------------
-	 *	| Opcode |  Filename  |   0  |    Mode    |   0  |
-	 *	------------------------------------------------
+	 *	2 bytes     string    1 byte     string   1 byte<br/>
+	 *	------------------------------------------------<br/>
+	 *	| Opcode |  Filename  |   0  |    Mode    |   0  |<br/>
+	 *	------------------------------------------------<br/>
 	 */
 	public static final short OP_WRQ = 2;
 
 	/**
 	 * Data packet
 	 *
-	 *  2 bytes     2 bytes      n bytes
-	 *	----------------------------------
-	 *	| Opcode |   Block #  |   Data     |
-	 *	----------------------------------
+	 *  2 bytes     2 bytes      n bytes<br/>
+	 *	----------------------------------<br/>
+	 *	| Opcode |   Block #  |   Data     |<br/>
+	 *	----------------------------------<br/>
 	 */
 	public static final short OP_DATA = 3;
 
 	/**
 	 * Acknowledgment
 	 *
-	 *  2 bytes     2 bytes
-	 *	---------------------
-	 *	| Opcode |   Block #  |
-	 *	---------------------
+	 *  2 bytes     2 bytes<br/>
+	 *	---------------------<br/>
+	 *	| Opcode |   Block #  |<br/>
+	 *	---------------------<br/>
 	 */
 	public static final short OP_ACK = 4;
 	/**
 	 * Error
 	 *
-	 *  2 bytes     2 bytes      string    1 byte
-	 *	-----------------------------------------
-	 *	| Opcode |  ErrorCode |   ErrMsg   |   0  |
-	 *	-----------------------------------------
+	 *  2 bytes     2 bytes      string    1 byte<br/>
+	 *	-----------------------------------------<br/>
+	 *	| Opcode |  ErrorCode |   ErrMsg   |   0  |<br/>
+	 *	-----------------------------------------<br/>
 	 */
 	public static final short OP_ERROR = 5;
 
