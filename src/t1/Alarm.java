@@ -10,11 +10,11 @@ import java.util.TimerTask;
 public class Alarm {
 
 	private Timer timer;
-	private HashMap<Integer, TaskThread> tasks;
+	private HashMap<Long, TaskThread> tasks;
 
 	public Alarm() {
 		this.timer = new Timer();
-		tasks = new HashMap<Integer, TaskThread>();
+		tasks = new HashMap<Long, TaskThread>();
 	}
 
 	/**
@@ -24,7 +24,7 @@ public class Alarm {
 	 * @param task Task to execute when the time goes off
 	 * @return True if the task was set, false if not. The task is not set if the given task id already exists
 	 */
-	public boolean schedule(int id, int millisecondDelay, Task task) {
+	public boolean schedule(long id, int millisecondDelay, Task task) {
 		TaskThread taskThread = new TaskThread(id, task);
 		if (this.tasks.get(id) != null) {
 			return false;
@@ -40,7 +40,7 @@ public class Alarm {
 	 * @param id Id of the task to remove
 	 * @return True if the task was removed, false if not. The task is not removed if the given id does not exist
 	 */
-	public boolean unschedule(int id) {
+	public boolean unschedule(long id) {
 		TaskThread task = this.tasks.get(id);
 		if (task != null) {
 			task.cancel();
@@ -69,9 +69,9 @@ public class Alarm {
 	private class TaskThread extends TimerTask {
 
 		private Task task;
-		private int id;
+		private long id;
 
-		public TaskThread(int id, Task task) {
+		public TaskThread(long id, Task task) {
 			super();
 			this.id = id;
 			this.task = task;
