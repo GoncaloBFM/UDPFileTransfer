@@ -1,5 +1,6 @@
 package t1;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,7 +25,7 @@ public class Alarm {
 	 * @param task Task to execute when the time goes off
 	 * @return True if the task was set, false if not. The task is not set if the given task id already exists
 	 */
-	public boolean schedule(long id, int millisecondDelay, Task task) {
+	public boolean schedule(long id, long millisecondDelay, Task task) {
 		TaskThread taskThread = new TaskThread(id, task);
 
 		if (this.tasks.get(id) != null) {
@@ -85,7 +86,7 @@ public class Alarm {
 	}
 
 	public interface Task {
-		void excute();
+		void excute() throws IOException;
 	}
 
 }

@@ -14,13 +14,33 @@ public class Window {
 		this.capacity = capacity;
 	}
 
-	public WindowSlot addToWindow(WindowSlot elem){
+	public void addToWindow(WindowSlot elem){
+
+		while(this.isFull())
+			try {
+				Thread.currentThread().wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+
 		this.windowSlots.put(elem.getPacket().getBlockSeqN(), elem);
+	}
 
-		if(this.isFull())
-			return this.windowSlots.pollFirstEntry().getValue();
+	public void setACK(long seqN){
+		WindowSlot ws = this.windowSlots.get(seqN);
+		if(ws == null) return;
 
-		return null;
+		ws.setAcked();
+
+		if(isFirstAcked()) {
+			pollFirst();
+			this.notifyAll();
+		}
+	}
+
+	public WindowSlot pollFirst(){
+		return this.windowSlots.pollFirstEntry().getValue();
 	}
 
 	public boolean isFull(){
@@ -33,6 +53,10 @@ public class Window {
 
 	public boolean isFirstAcked(){
 		return this.windowSlots.firstEntry().getValue().isAcked();
+	}
+
+	public TftpPacket getPacket(long seqN){
+		return this.windowSlots.get(seqN).getPacket();
 	}
 
 }
