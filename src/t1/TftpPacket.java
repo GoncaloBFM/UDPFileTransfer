@@ -57,10 +57,53 @@ public class TftpPacket {
 	public static final int MAX_TFTP_PACKET_SIZE = 65536;
 
 	// Op Code
+	/**
+	 * Read request
+	 *
+	 *	2 bytes     string    1 byte     string   1 byte
+	 *	------------------------------------------------
+	 *	| Opcode |  Filename  |   0  |    Mode    |   0  |
+	 *	------------------------------------------------
+	 */
 	public static final short OP_RRQ = 1;
+
+	/**
+	 * Write request
+	 *
+	 *	2 bytes     string    1 byte     string   1 byte
+	 *	------------------------------------------------
+	 *	| Opcode |  Filename  |   0  |    Mode    |   0  |
+	 *	------------------------------------------------
+	 */
 	public static final short OP_WRQ = 2;
+
+	/**
+	 * Data packet
+	 *
+	 *  2 bytes     2 bytes      n bytes
+	 *	----------------------------------
+	 *	| Opcode |   Block #  |   Data     |
+	 *	----------------------------------
+	 */
 	public static final short OP_DATA = 3;
+
+	/**
+	 * Acknowledgment
+	 *
+	 *  2 bytes     2 bytes
+	 *	---------------------
+	 *	| Opcode |   Block #  |
+	 *	---------------------
+	 */
 	public static final short OP_ACK = 4;
+	/**
+	 * Error
+	 *
+	 *  2 bytes     2 bytes      string    1 byte
+	 *	-----------------------------------------
+	 *	| Opcode |  ErrorCode |   ErrMsg   |   0  |
+	 *	-----------------------------------------
+	 */
 	public static final short OP_ERROR = 5;
 
 	// Extensions
