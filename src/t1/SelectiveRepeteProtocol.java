@@ -25,6 +25,7 @@ public class SelectiveRepeteProtocol {
 		this.alarm = new Alarm();
         this.window = new Window(initialWindowSize);
 
+        this.udpSocket = udpSocket;
         this.port = udpSocket.getPort();
         this.destAddr = address;
 
