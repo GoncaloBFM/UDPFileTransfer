@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.Map;
 
 import static t1.TftpPacket.OP_DATA;
 import static t1.TftpPacket.OP_WRQ;
@@ -61,6 +62,10 @@ public class FTUdpClientSR {
 		try {
 			while ((n = f.read(buffer)) > 0) {
 				TftpPacket pkt = new TftpPacket().putShort(OP_DATA).putLong(byteCount).putBytes(buffer, n);
+
+				Map<String, String> options = pkt.getOptions();
+				options.put("selective_repeat", "true");
+
 				this.srProtocol.send(pkt);
 				byteCount += n;
 			}
