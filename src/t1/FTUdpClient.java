@@ -1,10 +1,5 @@
 package t1;
 
-import static t1.TftpPacket.MAX_TFTP_PACKET_SIZE;
-import static t1.TftpPacket.OP_ACK;
-import static t1.TftpPacket.OP_DATA;
-import static t1.TftpPacket.OP_WRQ;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,6 +9,8 @@ import java.net.SocketAddress;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import static t1.TftpPacket.*;
 
 public class FTUdpClient {
 	static final int DEFAULT_TIMEOUT = 3000;
@@ -38,7 +35,6 @@ public class FTUdpClient {
 
 	void sendFile() {
 		try {
-
 			//socket = new DatagramSocket();
 			socket = new MyDatagramSocket();
 			
@@ -48,7 +44,7 @@ public class FTUdpClient {
 			//start a receiver process to feed the queue
 			new Thread(() -> {
 				try {
-					for (;;) {
+					while(true) {
 						byte[] buffer = new byte[MAX_TFTP_PACKET_SIZE];
 						DatagramPacket msg = new DatagramPacket(buffer, buffer.length);
 						socket.receive(msg);
