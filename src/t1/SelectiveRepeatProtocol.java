@@ -10,7 +10,7 @@ import static t1.TftpPacket.MAX_TFTP_PACKET_SIZE;
 /**
  * Created by Andre Pontes on 12/10/2015.
  */
-public class SelectiveRepeteProtocol {
+public class SelectiveRepeatProtocol {
     private DatagramSocket udpSocket;
 
     private SocketAddress destAddr;
@@ -21,7 +21,7 @@ public class SelectiveRepeteProtocol {
     private long millisTimeout;
     private int maxTries;
 
-    public SelectiveRepeteProtocol(int initialWindowSize, DatagramSocket udpSocket, SocketAddress address, long millisTimeout, int maxTries) {
+    public SelectiveRepeatProtocol(int initialWindowSize, DatagramSocket udpSocket, SocketAddress address, long millisTimeout, int maxTries) {
 		this.alarm = new Alarm();
         this.window = new Window(initialWindowSize);
 
@@ -51,12 +51,17 @@ public class SelectiveRepeteProtocol {
     private void resend(WindowSlot ws){
         long expectedACK = ws.getExpectedACK();
         if( ws.getNumberOfTries() >= maxTries )
-            throw new RuntimeException("booom!! nr.2");
+            throw new RuntimeException("ACK not received: " + ws.getExpectedACK());
 
         TftpPacket pkt = window.getPacket(expectedACK);
 
         if(pkt == null) {
-            System.out.println("potato");
+            System.out.println("potato: " + expectedACK);
+            return;
+        }
+
+        if(ws.isAcked()) {
+            System.out.println("banana: " + ws.getPacket());
             return;
         }
 

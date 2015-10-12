@@ -18,7 +18,7 @@ public class FTUdpClientSR {
 	static final int DEFAULT_BLOCKSIZE = 512; // default block size as in TFTP
 												// RFC
 
-	static int WindowSize = 1;
+	static int WindowSize = 10;
 	static int BlockSize = DEFAULT_BLOCKSIZE;
 	static int Timeout = DEFAULT_TIMEOUT;
 
@@ -27,7 +27,7 @@ public class FTUdpClientSR {
 	private DatagramSocket socket;
 	volatile private SocketAddress srvAddress;
 
-	private SelectiveRepeteProtocol srProtocol;
+	private SelectiveRepeatProtocol srProtocol;
 
 	FTUdpClientSR(String filename, SocketAddress srvAddress) {
 		try {
@@ -35,7 +35,7 @@ public class FTUdpClientSR {
 		} catch (SocketException e) {
 			throw new SocketCreateException("Could not create socket", e);
 		}
-		this.srProtocol = new SelectiveRepeteProtocol(WindowSize, socket, srvAddress, Timeout, DEFAULT_MAX_RETRIES);
+		this.srProtocol = new SelectiveRepeatProtocol(WindowSize, socket, srvAddress, Timeout, DEFAULT_MAX_RETRIES);
 		this.filename = filename;
 		this.srvAddress = srvAddress;
 	}
@@ -43,7 +43,9 @@ public class FTUdpClientSR {
 	void sendFile() {
 
 		System.out.println("sending file: \"" + filename + "\" to server: " + srvAddress + " from local port:" + socket.getLocalPort());
-		TftpPacket wrr = new TftpPacket().putShort(OP_WRQ).putString(filename).putByte(0).putString("octet").putByte(0);
+		TftpPacket wrr = new TftpPacket().putShort(OP_WRQ).putString(filename).putByte(0).putString("octet").putByte(0)
+				.putString("selective_repeat").putByte(0).putString("true").putByte(0);
+
 		this.srProtocol.send(wrr, 0L);
 
 
@@ -62,10 +64,6 @@ public class FTUdpClientSR {
 		try {
 			while ((n = f.read(buffer)) > 0) {
 				TftpPacket pkt = new TftpPacket().putShort(OP_DATA).putLong(byteCount).putBytes(buffer, n);
-
-				Map<String, String> options = pkt.getOptions();
-				options.put("selective_repeat", "true");
-
 				this.srProtocol.send(pkt);
 				byteCount += n;
 			}
