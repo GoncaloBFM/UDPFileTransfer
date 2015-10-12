@@ -34,22 +34,20 @@ public class SelectiveRepeteProtocol {
         this.millisTimeout = millisTimeout;
     }
 
-    public void send(TftpPacket packet) throws IOException {
-        sendPacket(packet);
+    public void send(TftpPacket packet) throws SocketSendException {
+        this.sendPacket(packet);
 
         long seqN = packet.getBlockSeqN();
-        alarm.schedule(seqN, millisTimeout, () -> {
-            try {
-                sendPacket(window.getPacket(seqN));
-            } catch (IOException e) {
-                new SocketSendException("Could not send packet", e);
-            }
-        });
+        alarm.schedule(seqN, millisTimeout, () -> sendPacket(window.getPacket(seqN)));
     }
 
-    private void sendPacket(TftpPacket packet) throws IOException {
-        udpSocket.send(new DatagramPacket(packet.getPacketData(), packet.getLength(), destAddr));
-    }
+    private void sendPacket(TftpPacket packet) throws SocketSendException {
+		try {
+			udpSocket.send(new DatagramPacket(packet.getPacketData(), packet.getLength(), this.destAddr));
+		} catch (IOException e) {
+			throw new SocketSendException("Could not send package", e);
+		}
+	}
 
     private class ACKReceiverThread extends Thread {
         @Override
