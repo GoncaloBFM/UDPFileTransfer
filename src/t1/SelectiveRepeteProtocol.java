@@ -19,8 +19,9 @@ public class SelectiveRepeteProtocol {
     private Window window;
 
     private long millisTimeout;
+    private int maxTries;
 
-    public SelectiveRepeteProtocol(int initialWindowSize, DatagramSocket udpSocket, SocketAddress address, long millisTimeout) {
+    public SelectiveRepeteProtocol(int initialWindowSize, DatagramSocket udpSocket, SocketAddress address, long millisTimeout, int maxTries) {
 		this.alarm = new Alarm();
         this.window = new Window(initialWindowSize);
 
@@ -31,13 +32,21 @@ public class SelectiveRepeteProtocol {
 		ackReceiverThread.start();
 
         this.millisTimeout = millisTimeout;
+        this.maxTries = maxTries;
     }
 
     public void send(TftpPacket packet) throws SocketSendException {
         this.sendPacket(packet);
 
         long seqN = packet.getBlockSeqN();
-        alarm.schedule(seqN, millisTimeout, () -> sendPacket(window.getPacket(seqN)));
+        WindowSlot ws = new WindowSlot(packet);
+        window.addToWindow(ws);
+        alarm.schedule(seqN, millisTimeout, () -> {
+            if( ws.getNumberOfTries() >= maxTries)
+                throw new RuntimeException("booom!! nr.2");
+
+            sendPacket(window.getPacket(seqN));
+        });
     }
 
     private void sendPacket(TftpPacket packet) throws SocketSendException {
