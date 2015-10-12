@@ -14,7 +14,6 @@ public class SelectiveRepeteProtocol {
     private DatagramSocket udpSocket;
 
     private SocketAddress destAddr;
-    private int port;
 
 	private Alarm alarm;
     private Window window;
@@ -26,7 +25,6 @@ public class SelectiveRepeteProtocol {
         this.window = new Window(initialWindowSize);
 
         this.udpSocket = udpSocket;
-        this.port = udpSocket.getPort();
         this.destAddr = address;
 
 		ACKReceiverThread ackReceiverThread = new ACKReceiverThread();
