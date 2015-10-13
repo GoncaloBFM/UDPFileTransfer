@@ -81,6 +81,8 @@ public class FTUdpClientSR {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		while(!srProtocol.emptyWindow()) Thread.yield();
 	}
 
 	public static void main(String[] args) throws Exception {

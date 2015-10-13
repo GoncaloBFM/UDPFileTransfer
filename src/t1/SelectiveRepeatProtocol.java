@@ -42,13 +42,15 @@ public class SelectiveRepeatProtocol {
     public void send(TftpPacket packet, long expectedACK){
         WindowSlot ws = new WindowSlot(packet, expectedACK);
         window.addToWindow(ws);
-        ws.incrementTries();
-        this.sendPacket(packet);
+        this.sendRetry(ws);
 
-        alarm.schedule(expectedACK, millisTimeout, () -> resend(ws));
+        //ws.incrementTries();
+        //this.sendPacket(packet);
+
+        //alarm.schedule(expectedACK, millisTimeout, () -> sendRetry(ws));
     }
 
-    private void resend(WindowSlot ws){
+    private void sendRetry(WindowSlot ws){
         long expectedACK = ws.getExpectedACK();
         if( ws.getNumberOfTries() >= maxTries )
             throw new RuntimeException("ACK not received: " + ws.getExpectedACK());
@@ -68,16 +70,21 @@ public class SelectiveRepeatProtocol {
         sendPacket(pkt);
         ws.incrementTries();
 
-        alarm.schedule(expectedACK, millisTimeout, () -> resend(ws));
+        alarm.trySchedule(expectedACK, millisTimeout, () -> sendRetry(ws));
     }
 
     private void sendPacket(TftpPacket packet) throws SocketSendException {
 		try {
 			udpSocket.send(new DatagramPacket(packet.getPacketData(), packet.getLength(), this.destAddr));
+            System.err.println(">>> Sent: " + packet.getBlockSeqN());
 		} catch (IOException e) {
 			throw new SocketSendException("Could not send package", e);
 		}
 	}
+
+    public boolean emptyWindow(){
+        return this.window.isEmpty();
+    }
 
     private class ACKReceiverThread extends Thread {
         @Override
@@ -106,10 +113,12 @@ public class SelectiveRepeatProtocol {
             }
         }
 
-        private synchronized void setACK(TftpPacket packet){
+        private void setACK(TftpPacket packet){
             long seqN = packet.getBlockSeqN();
-            alarm.unschedule(seqN);
             window.setACK(seqN);
+            alarm.unschedule(seqN);
+
+            System.err.println("<<< ACK : " + seqN);
         }
     }
 }

@@ -3,6 +3,8 @@ package t1;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by gbfm on 10/12/15.
@@ -24,16 +26,24 @@ public class Alarm {
 	 * @param task Task to execute when the time goes off
 	 * @return True if the task was set, false if not. The task is not set if the given task id already exists
 	 */
-	public boolean schedule(long id, long millisecondDelay, Task task) {
+	public synchronized boolean schedule(long id, long millisecondDelay, Task task) {
 		TaskThread taskThread = new TaskThread(id, task);
 
 		if (this.tasks.get(id) != null) {
 			return false;
 		}
-		this.tasks.put(id, taskThread);
 		this.timer.schedule(taskThread, millisecondDelay);
-
+		this.tasks.put(id, taskThread);
 		return true;
+	}
+
+	public synchronized boolean trySchedule(long id, long millisecondDelay, Task task){
+		try {
+			return this.schedule(id, millisecondDelay, task);
+		}
+		catch( IllegalStateException e){
+			return false;
+		}
 	}
 
 	/**
@@ -41,7 +51,7 @@ public class Alarm {
 	 * @param id Id of the task to remove
 	 * @return True if the task was removed, false if not. The task is not removed if the given id does not exist
 	 */
-	public boolean unschedule(long id) {
+	public synchronized boolean unschedule(long id) {
 		TaskThread task = this.tasks.get(id);
 		if (task != null) {
 			task.cancel();

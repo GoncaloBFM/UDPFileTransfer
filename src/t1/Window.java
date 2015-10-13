@@ -1,5 +1,6 @@
 package t1;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -33,29 +34,37 @@ public class Window {
 
 		ws.setAcked();
 
-		if(isFirstAcked()) {
+		while(isFirstAcked()) {
 			pollFirst();
 			this.notifyAll();
 		}
 	}
 
-	public WindowSlot pollFirst(){
+	public synchronized WindowSlot pollFirst(){
 		return this.windowSlots.pollFirstEntry().getValue();
 	}
 
-	public boolean isFull(){
+	public synchronized boolean isFull(){
 		return this.size() >= this.capacity;
 	}
 
-	public int size(){
+	public synchronized boolean isEmpty() { return this.size() == 0; }
+
+	public synchronized int size(){
 		return this.windowSlots.size();
 	}
 
-	public boolean isFirstAcked(){
-		return this.windowSlots.firstEntry().getValue().isAcked();
+	public synchronized boolean isFirstAcked(){
+		Map.Entry<Long, WindowSlot> entry = this.windowSlots.firstEntry();
+		if(entry == null) return false;
+
+		WindowSlot ws = entry.getValue();
+		if(ws == null) return false;
+
+		return ws.isAcked();
 	}
 
-	public TftpPacket getPacket(long expectedACK){
+	public synchronized TftpPacket getPacket(long expectedACK){
 		WindowSlot ws = this.windowSlots.get(expectedACK);
 		return ws == null ? null : ws.getPacket();
 	}
