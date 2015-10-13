@@ -61,16 +61,26 @@ public class FTUdpClientSR {
 
 		// read and send blocks
 		int n;
+		int lastN = 0;
 		byte[] buffer = new byte[BlockSize];
 		try {
 			while ((n = f.read(buffer)) > 0) {
 				TftpPacket pkt = new TftpPacket().putShort(OP_DATA).putLong(byteCount).putBytes(buffer, n);
 				this.srProtocol.send(pkt);
 				byteCount += n;
+				lastN = n;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		//****
+		//adapt byteCount for buggy server implementation
+		if(lastN != BlockSize){
+			byteCount = byteCount - lastN + BlockSize;
+		}
+		//end of adapt
+		//****
 
 		// Send an empty block to signal the end of file.
 		TftpPacket pkt = new TftpPacket().putShort(OP_DATA).putLong(byteCount).putBytes(new byte[0], 0);

@@ -76,7 +76,7 @@ public class SelectiveRepeatProtocol {
     private void sendPacket(TftpPacket packet) throws SocketSendException {
 		try {
 			udpSocket.send(new DatagramPacket(packet.getPacketData(), packet.getLength(), this.destAddr));
-            System.err.println(">>> Sent: " + packet.getBlockSeqN());
+            System.err.println(">>> Sent: " + packet.getBlockSeqN() + " | " + packet.getBlockSeqN() / 512);
 		} catch (IOException e) {
 			throw new SocketSendException("Could not send package", e);
 		}

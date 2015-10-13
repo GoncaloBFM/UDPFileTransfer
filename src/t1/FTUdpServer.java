@@ -185,6 +185,11 @@ public class FTUdpServer implements Runnable {
 
 					System.err.println( window.stream().map( v -> v / blockSize).collect( Collectors.toList()));
 					// try to slide window
+					if(window.size() == 1 && window.first() != nextBlockByte){
+						System.out.println("expected: " + nextBlockByte);
+						System.out.println("have: " + window.first());
+					}
+
 					while (window.size() > 0 && window.first() == nextBlockByte) {
 						window.remove(window.first());
 						nextBlockByte += blockSize;
