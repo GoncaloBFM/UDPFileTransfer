@@ -1,8 +1,6 @@
 package t1;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -13,6 +11,9 @@ import static t1.TftpPacket.OP_DATA;
 import static t1.TftpPacket.OP_WRQ;
 
 public class FTUdpClientSR {
+	static PrintStream err = System.err;
+	static PrintStream out = System.out;
+
 	static final int DEFAULT_TIMEOUT = 3000;
 	static final int DEFAULT_MAX_RETRIES = 5;
 	static final int DEFAULT_BLOCKSIZE = 512; // default block size as in TFTP
@@ -31,7 +32,7 @@ public class FTUdpClientSR {
 
 	FTUdpClientSR(String filename, SocketAddress srvAddress) {
 		try {
-			this.socket = new DatagramSocket();
+			this.socket = new MyDatagramSocket();
 		} catch (SocketException e) {
 			throw new SocketCreateException("Could not create socket", e);
 		}
@@ -42,7 +43,7 @@ public class FTUdpClientSR {
 
 	void sendFile() {
 
-		System.out.println("sending file: \"" + filename + "\" to server: " + srvAddress + " from local port:" + socket.getLocalPort());
+		out.println("sending file: \"" + filename + "\" to server: " + srvAddress + " from local port:" + socket.getLocalPort());
 		TftpPacket wrr = new TftpPacket().putShort(OP_WRQ).putString(filename).putByte(0).putString("octet").putByte(0)
 				.putString("selective_repeat").putByte(0).putString("true").putByte(0);
 
@@ -95,7 +96,7 @@ public class FTUdpClientSR {
 		case 2:
 			break;
 		default:
-			System.out.printf("usage: java FTUdpClient filename servidor [blocksize [ timeout [ windowsize ]]]\n");
+			out.printf("usage: java FTUdpClient filename servidor [blocksize [ timeout [ windowsize ]]]\n");
 			System.exit(0);
 		}
 
@@ -106,6 +107,7 @@ public class FTUdpClientSR {
 		SocketAddress srvAddr = new InetSocketAddress(server, FTUdpServer.DEFAULT_PORT);
 
 		new FTUdpClientSR(filename, srvAddr).sendFile();
+		System.exit(0);
 	}
 
 }
