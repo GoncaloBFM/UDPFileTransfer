@@ -69,4 +69,9 @@ public class Window {
 		return ws == null ? null : ws.getPacket();
 	}
 
+	public synchronized void waitUntilIsNotEmpty() throws InterruptedException {
+		while(!this.isEmpty())
+			this.wait();
+	}
+
 }

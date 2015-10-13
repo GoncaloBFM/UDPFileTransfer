@@ -52,10 +52,19 @@ public class SelectiveRepeatProtocol {
 
     private void sendRetry(WindowSlot ws){
         long expectedACK = ws.getExpectedACK();
-        if( ws.getNumberOfTries() >= maxTries )
-            throw new RuntimeException("ACK not received: " + ws.getExpectedACK());
+        if( ws.getNumberOfTries() >= maxTries) {
+            if(ws.getPacket().getBlockData().length != 0) {
+                System.out.println("ERRoR ACK not received: " + ws.getExpectedACK());
+                System.exit(002);
+            } else {
+                window.setACK(ws.getExpectedACK());
+            }
+            this.alarm.cancelAll();
+            return;
+        }
 
-        TftpPacket pkt = window.getPacket(expectedACK);
+        TftpPacket pkt = ws.getPacket();
+        //TftpPacket pkt = window.getPacket(expectedACK);
 
         if(pkt == null) {
             System.out.println("potato: " + expectedACK);
@@ -86,6 +95,14 @@ public class SelectiveRepeatProtocol {
         return this.window.isEmpty();
     }
 
+    public void waitUntilWindowIsNotEmpty(){
+        try {
+            this.window.waitUntilIsNotEmpty();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     private class ACKReceiverThread extends Thread {
         @Override
         public void run(){
@@ -108,8 +125,7 @@ public class SelectiveRepeatProtocol {
                     this.setACK(pkt);
                 }
             } catch (WrongOPCodeException | IOException e) {
-                System.err.println("Error in receiver thread! ");
-                e.printStackTrace();
+                System.err.println("Error in receiver thread! \n" + e.getMessage());
             }
         }
 

@@ -1,11 +1,13 @@
 package t1;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.util.Map;
 
 import static t1.TftpPacket.OP_DATA;
 import static t1.TftpPacket.OP_WRQ;
@@ -48,7 +50,7 @@ public class FTUdpClientSR {
 				.putString("selective_repeat").putByte(0).putString("true").putByte(0);
 
 		this.srProtocol.send(wrr, 0L);
-
+		this.srProtocol.waitUntilWindowIsNotEmpty();
 
 		FileInputStream f = null;
 		try {
@@ -84,6 +86,7 @@ public class FTUdpClientSR {
 
 		// Send an empty block to signal the end of file.
 		TftpPacket pkt = new TftpPacket().putShort(OP_DATA).putLong(byteCount).putBytes(new byte[0], 0);
+		this.srProtocol.waitUntilWindowIsNotEmpty();
 		this.srProtocol.send(pkt);
 
 		try {
@@ -92,7 +95,7 @@ public class FTUdpClientSR {
 			e.printStackTrace();
 		}
 
-		while(!srProtocol.emptyWindow()) Thread.yield();
+		this.srProtocol.waitUntilWindowIsNotEmpty();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -118,8 +121,14 @@ public class FTUdpClientSR {
 		String server = args[1];
 		SocketAddress srvAddr = new InetSocketAddress(server, FTUdpServer.DEFAULT_PORT);
 
-		new FTUdpClientSR(filename, srvAddr).sendFile();
-		System.exit(0);
+		try {
+			new FTUdpClientSR(filename, srvAddr).sendFile();
+		}
+		catch (Exception e){
+			System.out.println("FAILED: " + e.getMessage());
+		}
+
+	System.exit(0);
 	}
 
 }

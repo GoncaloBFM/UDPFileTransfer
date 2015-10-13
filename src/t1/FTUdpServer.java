@@ -9,12 +9,6 @@ package t1;
  * 		only receives files
  **/
 
-import static t1.TftpPacket.MAX_TFTP_PACKET_SIZE;
-import static t1.TftpPacket.OP_ACK;
-import static t1.TftpPacket.OP_DATA;
-import static t1.TftpPacket.OP_ERROR;
-import static t1.TftpPacket.OP_WRQ;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
@@ -25,6 +19,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static t1.TftpPacket.*;
 
 public class FTUdpServer implements Runnable {
 	public static final int DEFAULT_PORT = 10512; // my default port
@@ -173,7 +169,8 @@ public class FTUdpServer implements Runnable {
 						// too large, ignore.
 						continue;
 					}
-					
+
+					if(!receivedLastBlock)
 					sendAck(socket, seqN, cltAddr, "normal");
 
 					if (seqN >= nextBlockByte && window.add(seqN)) {
@@ -226,7 +223,7 @@ public class FTUdpServer implements Runnable {
 	}
 
 	public static void main(String[] args) throws Exception {
-		MyDatagramSocket.init(1, 1);
+			MyDatagramSocket.init(1, 1);
 		int port = DEFAULT_PORT;
 		int windowSize = DEFAULT_WINDOW_SIZE;
 
