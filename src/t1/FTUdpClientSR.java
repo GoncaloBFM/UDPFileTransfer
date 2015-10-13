@@ -38,7 +38,8 @@ public class FTUdpClientSR {
 		} catch (SocketException e) {
 			throw new SocketCreateException("Could not create socket", e);
 		}
-		this.srProtocol = new SelectiveRepeatProtocol(WindowSize, socket, srvAddress, Timeout, DEFAULT_MAX_RETRIES);
+		//this.srProtocol = new SelectiveRepeatProtocol(WindowSize, socket, srvAddress, Timeout, DEFAULT_MAX_RETRIES);
+		this.srProtocol = new SelectiveRepeatProtocol(socket, srvAddress, DEFAULT_MAX_RETRIES);
 		this.filename = filename;
 		this.srvAddress = srvAddress;
 	}

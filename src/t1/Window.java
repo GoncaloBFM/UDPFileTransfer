@@ -15,8 +15,11 @@ public class Window {
 		this.capacity = capacity;
 	}
 
-	public synchronized void addToWindow(WindowSlot elem){
+	public Window(){
+		this(StatsU.getOptimalWindowSize());
+	}
 
+	public synchronized void addToWindow(WindowSlot elem){
 		while(this.isFull())
 			try {
 				this.wait();
@@ -74,4 +77,10 @@ public class Window {
 			this.wait();
 	}
 
+	public void setCapacity(int capacity) {
+		if(this.capacity != capacity)
+			System.out.println("new window size: " + capacity);
+
+		this.capacity = capacity;
+	}
 }
