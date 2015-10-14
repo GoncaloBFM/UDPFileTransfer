@@ -75,7 +75,7 @@ public class FTUdpServer implements Runnable {
 	private void stopAndWaitReceive() {
 		try {
 			// DatagramSocket socket = new DatagramSocket();
-			DatagramSocket socket = new DatagramSocket();
+			DatagramSocket socket = new MyDatagramSocket();
 
 			// Defines the timeout to to end the server, in case the client
 			// stops sending data
@@ -233,7 +233,7 @@ public class FTUdpServer implements Runnable {
 		}
 
 		// create and bind socket to port for receiving client requests
-		DatagramSocket mainSocket = new DatagramSocket(port);
+		DatagramSocket mainSocket = new MyDatagramSocket(port);
 		System.out.println("New tftp server started at local port " + mainSocket.getLocalPort());
 
 		//performance improvement
