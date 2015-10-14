@@ -86,6 +86,9 @@ public class SelectiveRepeatProtocol {
         if(pkt == null || ws.isAcked()) return;
 
         if(ws.getExpectedACK() < window.getFirst().getExpectedACK() + window.getCapacity() * 512) {
+            if(ws.getNumberOfTries() > 0)
+                StatsU.notifyPacketReSent();
+
             sendPacket(pkt);
             ws.incrementTries();
         }

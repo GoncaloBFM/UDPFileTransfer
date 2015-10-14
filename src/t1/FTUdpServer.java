@@ -75,7 +75,7 @@ public class FTUdpServer implements Runnable {
 	private void stopAndWaitReceive() {
 		try {
 			// DatagramSocket socket = new DatagramSocket();
-			DatagramSocket socket = new MyDatagramSocket();
+			DatagramSocket socket = new DatagramSocket();
 
 			// Defines the timeout to to end the server, in case the client
 			// stops sending data
@@ -138,7 +138,7 @@ public class FTUdpServer implements Runnable {
 			window = new TreeSet<Long>();
 
 			// DatagramSocket socket = new DatagramSocket();
-			DatagramSocket socket = new MyDatagramSocket();
+			DatagramSocket socket = new DatagramSocket();
 
 			// Defines the timeout to to end the server, in case the client
 			// stops sending data

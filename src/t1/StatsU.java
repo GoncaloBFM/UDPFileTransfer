@@ -1,6 +1,5 @@
 package t1;
 
-import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,6 +31,7 @@ public abstract class StatsU {
 
     private static int ackReceived = 0;
     private static int packetsSent = 0;
+    private static int packetsReSent = 0;
 
     private static long millisFileStart;
     private static long millisFileEnd;
@@ -77,6 +77,10 @@ public abstract class StatsU {
         packetsSent++;
     }
 
+    public synchronized static void notifyPacketReSent(){
+        packetsReSent++;
+    }
+
     public synchronized static void notifyACKReceived(){
         ackReceived++;
     }
@@ -106,6 +110,10 @@ public abstract class StatsU {
         map.put("RTT (ms)", Double.toString(estimatedRTT));
         map.put("max windows size", Integer.toString(maxWindowSize));
         map.put("min window size", Integer.toString(minWindowSize));
+
+        map.put("packets sent", Integer.toString(packetsSent));
+        map.put("packets resent", Integer.toString(packetsReSent));
+
 
         return map;
     }

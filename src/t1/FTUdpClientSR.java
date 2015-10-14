@@ -33,7 +33,7 @@ public class FTUdpClientSR {
 
 	FTUdpClientSR(String filename, SocketAddress srvAddress) {
 		try {
-			this.socket = new MyDatagramSocket();
+			this.socket = new DatagramSocket();
 		} catch (SocketException e) {
 			throw new SocketCreateException("Could not create socket", e);
 		}
