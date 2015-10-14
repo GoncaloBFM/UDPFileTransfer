@@ -9,8 +9,8 @@ import java.util.Map;
  */
 public abstract class StatsU {
 
-    private static final int START_TIMEOUT = 3000;
-    private static final int START_WINDOW_SIZE = 20;
+    private static int START_TIMEOUT = FTUdpClientSR.Timeout;
+    private static int START_WINDOW_SIZE = FTUdpClientSR.WindowSize;
 
     private static final double ALPHA = 0.125;
     private static final double BETA = 0.25;
@@ -27,8 +27,8 @@ public abstract class StatsU {
     private static int transmissionTime = 3;
 
     private static int windowSize = START_WINDOW_SIZE;
-    private static int avgWindowSize = START_WINDOW_SIZE;
-    private static int avgWindowSizeCount = 1;
+    private static int maxWindowSize = START_WINDOW_SIZE;
+    private static int minWindowSize = START_WINDOW_SIZE;
 
     private static int ackReceived = 0;
     private static int packetsSent = 0;
@@ -36,6 +36,11 @@ public abstract class StatsU {
     private static long millisFileStart;
     private static long millisFileEnd;
     private static long fileLength;
+
+    public static void updateConstants(){
+        START_TIMEOUT = FTUdpClientSR.Timeout;
+        START_WINDOW_SIZE = FTUdpClientSR.WindowSize;
+    }
 
     public static void addRTTSample(long sampleRTT){
         if(RTTsamplesCount == 0){
@@ -86,8 +91,8 @@ public abstract class StatsU {
     }
 
     public static void notifyWindowSizeChange(int newSize){
-        windowSize = (windowSize * avgWindowSize + newSize) / (avgWindowSizeCount + 1);
-        avgWindowSizeCount++;
+        maxWindowSize = Math.max(maxWindowSize, newSize);
+        minWindowSize = Math.min(minWindowSize, newSize);
     }
 
     public static Map<String, String> getStats(){
@@ -99,7 +104,8 @@ public abstract class StatsU {
         map.put("file length (kB)", Long.toString(fileLength));
         map.put("bitrate (Kb/s)", Long.toString(fileLength * 8 * 1000 / duration));
         map.put("RTT (ms)", Double.toString(estimatedRTT));
-        map.put("average window size", Integer.toString(avgWindowSize));
+        map.put("max windows size", Integer.toString(maxWindowSize));
+        map.put("min window size", Integer.toString(minWindowSize));
 
         return map;
     }

@@ -22,6 +22,8 @@ public class FTUdpClientSR {
 	static int BlockSize = DEFAULT_BLOCKSIZE;
 	static int Timeout = DEFAULT_TIMEOUT;
 
+	static boolean AdaptativeWindowTimeout = false;
+
 	private String filename;
 
 	private DatagramSocket socket;
@@ -35,8 +37,14 @@ public class FTUdpClientSR {
 		} catch (SocketException e) {
 			throw new SocketCreateException("Could not create socket", e);
 		}
-		//this.srProtocol = new SelectiveRepeatProtocol(WindowSize, socket, srvAddress, Timeout, DEFAULT_MAX_RETRIES);
-		this.srProtocol = new SelectiveRepeatProtocol(socket, srvAddress, DEFAULT_MAX_RETRIES);
+
+		if(AdaptativeWindowTimeout){
+			this.srProtocol = new SelectiveRepeatProtocol(socket, srvAddress, DEFAULT_MAX_RETRIES);
+		}
+		else{
+			this.srProtocol = new SelectiveRepeatProtocol(WindowSize, socket, srvAddress, Timeout, DEFAULT_MAX_RETRIES);
+		}
+
 		this.filename = filename;
 		this.srvAddress = srvAddress;
 	}
@@ -116,6 +124,9 @@ public class FTUdpClientSR {
 		}
 
 		String filename = args[0];
+
+		if(args.length == 3)
+			AdaptativeWindowTimeout = true;
 
 		// Preparar endereco e o porto do servidor
 		String server = args[1];

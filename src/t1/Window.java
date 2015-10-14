@@ -7,16 +7,16 @@ import java.util.TreeMap;
  * Created by gbfm on 10/12/15.
  */
 public class Window {
-	private TreeMap<Long, WindowSlot> windowSlots;
+	private TreeMap<Long, WindowSlot> windowSlots = new TreeMap<Long, WindowSlot>();
 	private int capacity;
 
 	public Window(int capacity) {
-		this.windowSlots =  new TreeMap<Long, WindowSlot>();
 		this.setCapacity(capacity);
 	}
 
 	public Window(){
-		this(StatsU.getOptimalWindowSize());
+		StatsU.updateConstants();
+		this.setCapacity(StatsU.getOptimalWindowSize());
 	}
 
 	public synchronized void addToWindow(WindowSlot elem){
@@ -80,7 +80,9 @@ public class Window {
 	}
 
 	public void setCapacity(int capacity) {
-		StatsU.notifyWindowSizeChange(capacity);
+		if(this.capacity != capacity)
+			StatsU.notifyWindowSizeChange(capacity);
+
 		this.capacity = capacity;
 	}
 
