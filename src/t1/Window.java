@@ -12,7 +12,7 @@ public class Window {
 
 	public Window(int capacity) {
 		this.windowSlots =  new TreeMap<Long, WindowSlot>();
-		this.capacity = capacity;
+		this.setCapacity(capacity);
 	}
 
 	public Window(){

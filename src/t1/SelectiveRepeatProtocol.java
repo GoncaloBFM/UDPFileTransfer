@@ -78,7 +78,6 @@ public class SelectiveRepeatProtocol {
             return;
         } else if(addaptable && (ws.getExpectedACK() < window.getFirst().getExpectedACK() + window.getCapacity() * 512)){
             window.setCapacity((int) Math.max(window.getCapacity() * 0.50, 1));
-            //System.out.println("half: " + window.getCapacity());
         }
 
         TftpPacket pkt = ws.getPacket();

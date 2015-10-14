@@ -22,6 +22,7 @@ public abstract class StatsU {
 
     private static double estimatedRTT = START_TIMEOUT;
     private static double devRTT;
+    private static int RTTsamplesCount = 0;
 
     private static int transmissionTime = 3;
 
@@ -37,8 +38,15 @@ public abstract class StatsU {
     private static long fileLength;
 
     public static void addRTTSample(long sampleRTT){
-        devRTT = devRTT * BETA_LEFT + Math.abs(sampleRTT - estimatedRTT) * BETA;
-        estimatedRTT = estimatedRTT * ALPHA_LEFT + sampleRTT * ALPHA;
+        if(RTTsamplesCount == 0){
+            devRTT = 0;
+            estimatedRTT = sampleRTT;
+        }else{
+            devRTT = devRTT * BETA_LEFT + Math.abs(sampleRTT - estimatedRTT) * BETA;
+            estimatedRTT = estimatedRTT * ALPHA_LEFT + sampleRTT * ALPHA;
+        }
+
+        RTTsamplesCount++;
     }
 
     public static int getOptimalTimeout(){
@@ -53,7 +61,7 @@ public abstract class StatsU {
         } else if (estimatedValue < windowSize) {
             windowSize = (int) estimatedValue;
         }
-        return 50;//windowSize;
+        return windowSize;
     }
 
     public static void addTransmissionTimeSample(int transmissionTimeSample) {
@@ -89,7 +97,7 @@ public abstract class StatsU {
 
         map.put("duration (ms)", Long.toString(duration));
         map.put("file length (kB)", Long.toString(fileLength));
-        map.put("bitrate (Kb/s)", Long.toString(fileLength * 1000 / duration));
+        map.put("bitrate (Kb/s)", Long.toString(fileLength * 8 * 1000 / duration));
         map.put("RTT (ms)", Double.toString(estimatedRTT));
         map.put("average window size", Integer.toString(avgWindowSize));
 
