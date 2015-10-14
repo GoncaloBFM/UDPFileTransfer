@@ -31,9 +31,9 @@ public class Window {
 		this.windowSlots.put(elem.getExpectedACK(), elem);
 	}
 
-	public synchronized void setACK(long expectedACK){
+	public synchronized WindowSlot setACK(long expectedACK){
 		WindowSlot ws = this.windowSlots.get(expectedACK);
-		if(ws == null) return;
+		if(ws == null) return null;
 
 		ws.setAcked();
 
@@ -41,6 +41,8 @@ public class Window {
 			pollFirst();
 			this.notifyAll();
 		}
+
+		return ws;
 	}
 
 	public synchronized WindowSlot pollFirst(){
@@ -78,9 +80,19 @@ public class Window {
 	}
 
 	public void setCapacity(int capacity) {
-		if(this.capacity != capacity)
-			System.out.println("new window size: " + capacity);
-
 		this.capacity = capacity;
+	}
+
+	public int getCapacity() {
+		return this.capacity;
+	}
+	public WindowSlot getFirst(){
+		Map.Entry<Long, WindowSlot> entry = this.windowSlots.firstEntry();
+		if(entry == null) return null;
+
+		WindowSlot ws = entry.getValue();
+		if(ws == null) return null;
+
+		return ws;
 	}
 }

@@ -23,13 +23,15 @@ public class SelectiveRepeatProtocol {
     private long millisTimeout;
     private int maxTries;
 
-    private boolean addaptable = false;
+    private boolean addaptable;
 
     public SelectiveRepeatProtocol(int initialWindowSize, DatagramSocket udpSocket, SocketAddress address, long millisTimeout, int maxTries) {
         init(udpSocket, address, maxTries);
 
         this.window = new Window(initialWindowSize);
         this.millisTimeout = millisTimeout;
+
+        this.addaptable = false;
     }
 
     public SelectiveRepeatProtocol(DatagramSocket udpSocket, SocketAddress address, int maxTries){
@@ -58,8 +60,6 @@ public class SelectiveRepeatProtocol {
 
     public void send(TftpPacket packet, long expectedACK){
         WindowSlot ws = new WindowSlot(packet, expectedACK);
-        if(addaptable)
-            window.setCapacity(StatsU.getOptimalWindowSize());
 
         window.addToWindow(ws);
         this.sendRetry(ws);
@@ -76,6 +76,9 @@ public class SelectiveRepeatProtocol {
             }
             this.alarm.cancelAll();
             return;
+        } else if(addaptable && ws.getNumberOfTries() > 0 && (ws.getExpectedACK() < window.getFirst().getExpectedACK() + window.getCapacity() * 512)){
+            window.setCapacity((int) Math.max(window.getCapacity() * 0.50, 1));
+            System.out.println("half: " + window.getCapacity());
         }
 
         TftpPacket pkt = ws.getPacket();
@@ -91,8 +94,10 @@ public class SelectiveRepeatProtocol {
             return;
         }
 
-        sendPacket(pkt);
-        ws.incrementTries();
+        if(ws.getExpectedACK() < window.getFirst().getExpectedACK() + window.getCapacity() * 512) {
+            sendPacket(pkt);
+            ws.incrementTries();
+        }
 
         if(addaptable)
             millisTimeout = StatsU.getOptimalTimeout();
@@ -160,7 +165,20 @@ public class SelectiveRepeatProtocol {
 
         private void setACK(TftpPacket packet){
             long seqN = packet.getBlockSeqN();
-            window.setACK(seqN);
+            WindowSlot ws = window.setACK(seqN);
+
+            if (ws != null && ws.getNumberOfTries() == 1) {
+
+                if(addaptable) {
+                    window.setCapacity(window.getCapacity() + 1);
+                    System.out.println("inc: " + window.getCapacity());
+                }
+
+                StatsU.addRTTSample(ws.getRTT());
+                //System.out.println("Sample: " + ws.getRTT());
+                //System.out.println("Current: " + StatsU.getOptimalTimeout());
+            }
+
             alarm.unschedule(seqN);
 
             System.err.println("<<< ACK : " + seqN);

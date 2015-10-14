@@ -10,6 +10,10 @@ public class WindowSlot {
 
 	private long expectedACK;
 
+	private long initTime = -1;
+	private long returnTime = -1;
+	private long rtt = -1;
+
 	public WindowSlot(TftpPacket packet) {
 		this(packet, packet.getBlockSeqN());
 	}
@@ -20,6 +24,8 @@ public class WindowSlot {
 		this.isAcked = false;
 
 		this.expectedACK = expectedACK;
+
+		this.initTime = System.currentTimeMillis();
 	}
 
 	public void incrementTries() {
@@ -27,6 +33,8 @@ public class WindowSlot {
 	}
 
 	public void setAcked() {
+		this.returnTime = System.currentTimeMillis();
+		this.rtt = this.returnTime - this.initTime;
 		this.isAcked = true;
 	}
 
@@ -44,5 +52,9 @@ public class WindowSlot {
 
 	public long getExpectedACK(){
 		return this.expectedACK;
+	}
+
+	public long getRTT() {
+		return this.rtt;
 	}
 }
