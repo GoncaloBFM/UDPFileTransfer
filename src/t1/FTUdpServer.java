@@ -170,7 +170,6 @@ public class FTUdpServer implements Runnable {
 						continue;
 					}
 
-					if(!receivedLastBlock)
 					sendAck(socket, seqN, cltAddr, "normal");
 
 					if (seqN >= nextBlockByte && window.add(seqN)) {
