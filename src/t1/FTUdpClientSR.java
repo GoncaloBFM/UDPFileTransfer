@@ -1,9 +1,6 @@
 package t1;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -45,8 +42,9 @@ public class FTUdpClientSR {
 	}
 
 	void sendFile() {
-
 		out.println("sending file: \"" + filename + "\" to server: " + srvAddress + " from local port:" + socket.getLocalPort());
+
+		StatsU.notifyFileSendStart((new File(filename)).length());
 		TftpPacket wrr = new TftpPacket().putShort(OP_WRQ).putString(filename).putByte(0).putString("octet").putByte(0)
 				.putString("selective_repeat").putByte(0).putString("true").putByte(0);
 
@@ -97,6 +95,7 @@ public class FTUdpClientSR {
 		}
 
 		this.srProtocol.waitUntilWindowIsNotEmpty();
+		StatsU.notifyFileSendEnd();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -123,7 +122,10 @@ public class FTUdpClientSR {
 		SocketAddress srvAddr = new InetSocketAddress(server, FTUdpServer.DEFAULT_PORT);
 
 		try {
+			//performance improvement
+			//System.err.close();
 			new FTUdpClientSR(filename, srvAddr).sendFile();
+			System.out.println(StatsU.getStats());
 		}
 		catch (Exception e){
 			System.out.println("FAILED: " + e.getMessage());

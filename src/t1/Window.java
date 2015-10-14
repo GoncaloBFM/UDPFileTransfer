@@ -80,6 +80,7 @@ public class Window {
 	}
 
 	public void setCapacity(int capacity) {
+		StatsU.notifyWindowSizeChange(capacity);
 		this.capacity = capacity;
 	}
 

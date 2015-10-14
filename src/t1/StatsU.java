@@ -1,5 +1,9 @@
 package t1;
 
+import java.lang.reflect.Array;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Created by Andre Pontes on 13/10/2015.
  */
@@ -22,6 +26,15 @@ public abstract class StatsU {
     private static int transmissionTime = 3;
 
     private static int windowSize = START_WINDOW_SIZE;
+    private static int avgWindowSize = START_WINDOW_SIZE;
+    private static int avgWindowSizeCount = 1;
+
+    private static int ackReceived = 0;
+    private static int packetsSent = 0;
+
+    private static long millisFileStart;
+    private static long millisFileEnd;
+    private static long fileLength;
 
     public static void addRTTSample(long sampleRTT){
         devRTT = devRTT * BETA_LEFT + Math.abs(sampleRTT - estimatedRTT) * BETA;
@@ -29,9 +42,8 @@ public abstract class StatsU {
     }
 
     public static int getOptimalTimeout(){
-
         //System.out.println((int) (estimatedRTT + 4 * devRTT));
-        return 100; //(int) (estimatedRTT + 4 * devRTT);
+        return (int) (estimatedRTT + 4 * devRTT);
     }
 
     public static int getOptimalWindowSize(){
@@ -41,11 +53,47 @@ public abstract class StatsU {
         } else if (estimatedValue < windowSize) {
             windowSize = (int) estimatedValue;
         }
-        return windowSize;
+        return 50;//windowSize;
     }
 
     public static void addTransmissionTimeSample(int transmissionTimeSample) {
         transmissionTime = (int) Math.ceil(transmissionTime * THETA_LEFT + transmissionTimeSample * THETA);
+    }
+
+    public synchronized static void notifyPacketSent(){
+        packetsSent++;
+    }
+
+    public synchronized static void notifyACKReceived(){
+        ackReceived++;
+    }
+
+    public static void notifyFileSendStart(long fileLengthByte){
+        StatsU.millisFileStart = System.currentTimeMillis();
+        StatsU.fileLength = fileLengthByte / 1024;
+    }
+
+    public static void notifyFileSendEnd(){
+        millisFileEnd = System.currentTimeMillis();
+    }
+
+    public static void notifyWindowSizeChange(int newSize){
+        windowSize = (windowSize * avgWindowSize + newSize) / (avgWindowSizeCount + 1);
+        avgWindowSizeCount++;
+    }
+
+    public static Map<String, String> getStats(){
+        Map<String, String> map = new LinkedHashMap<>();
+
+        long duration = millisFileEnd - millisFileStart;
+
+        map.put("duration (ms)", Long.toString(duration));
+        map.put("file length (kB)", Long.toString(fileLength));
+        map.put("bitrate (Kb/s)", Long.toString(fileLength * 1000 / duration));
+        map.put("RTT (ms)", Double.toString(estimatedRTT));
+        map.put("average window size", Integer.toString(avgWindowSize));
+
+        return map;
     }
 
 }

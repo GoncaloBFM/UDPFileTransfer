@@ -76,23 +76,15 @@ public class SelectiveRepeatProtocol {
             }
             this.alarm.cancelAll();
             return;
-        } else if(addaptable && ws.getNumberOfTries() > 0 && (ws.getExpectedACK() < window.getFirst().getExpectedACK() + window.getCapacity() * 512)){
+        } else if(addaptable && (ws.getExpectedACK() < window.getFirst().getExpectedACK() + window.getCapacity() * 512)){
             window.setCapacity((int) Math.max(window.getCapacity() * 0.50, 1));
-            System.out.println("half: " + window.getCapacity());
+            //System.out.println("half: " + window.getCapacity());
         }
 
         TftpPacket pkt = ws.getPacket();
         //TftpPacket pkt = window.getPacket(expectedACK);
 
-        if(pkt == null) {
-            System.out.println("potato: " + expectedACK);
-            return;
-        }
-
-        if(ws.isAcked()) {
-            System.out.println("banana: " + ws.getPacket());
-            return;
-        }
+        if(pkt == null || ws.isAcked()) return;
 
         if(ws.getExpectedACK() < window.getFirst().getExpectedACK() + window.getCapacity() * 512) {
             sendPacket(pkt);
@@ -118,6 +110,8 @@ public class SelectiveRepeatProtocol {
                 udpSocket.send(new DatagramPacket(packet.getPacketData(), packet.getLength(), this.destAddr));
                 BITRATE_TEST_CURRENT++;
             }
+
+            StatsU.notifyPacketSent();
 
             System.err.println(">>> Sent: " + packet.getBlockSeqN() + " | " + packet.getBlockSeqN() / 512);
 		} catch (IOException e) {
@@ -156,6 +150,8 @@ public class SelectiveRepeatProtocol {
 						throw new WrongOPCodeException("Not an ACK packet");
 					}
 
+                    StatsU.notifyACKReceived();
+
                     this.setACK(pkt);
                 }
             } catch (WrongOPCodeException | IOException e) {
@@ -171,7 +167,7 @@ public class SelectiveRepeatProtocol {
 
                 if(addaptable) {
                     window.setCapacity(window.getCapacity() + 1);
-                    System.out.println("inc: " + window.getCapacity());
+                    //System.out.println("inc: " + window.getCapacity());
                 }
 
                 StatsU.addRTTSample(ws.getRTT());

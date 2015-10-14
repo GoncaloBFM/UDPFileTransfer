@@ -181,12 +181,8 @@ public class FTUdpServer implements Runnable {
 					}
 
 					System.err.println( window.stream().map( v -> v / blockSize).collect( Collectors.toList()));
-					// try to slide window
-					if(window.size() == 1 && window.first() != nextBlockByte){
-						System.out.println("expected: " + nextBlockByte);
-						System.out.println("have: " + window.first());
-					}
 
+					// try to slide window
 					while (window.size() > 0 && window.first() == nextBlockByte) {
 						window.remove(window.first());
 						nextBlockByte += blockSize;
@@ -240,6 +236,9 @@ public class FTUdpServer implements Runnable {
 		// create and bind socket to port for receiving client requests
 		DatagramSocket mainSocket = new DatagramSocket(port);
 		System.out.println("New tftp server started at local port " + mainSocket.getLocalPort());
+
+		//performance improvement
+		System.err.close();
 
 		for (;;) { // infinite processing loop...
 			try {
